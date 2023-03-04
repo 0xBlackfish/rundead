@@ -63,6 +63,11 @@ if pub_key != '':
         offset+=500
 
         df_rundeads_raw['bones'] = df_rundeads_raw['attributes'].apply(lambda x: int(next(item for item in x if item['trait_type'] == 'Bones')['value']))
+        
+        try:
+            df_rundeads_raw['price_per_bone'] = df_rundeads_raw['price'] / df_rundeads_raw['bones']
+        except:
+            pass
 
     st.write(' ')
     st.write(' ')
@@ -156,6 +161,7 @@ if pub_key != '':
                 ),
                 color=alt.value('#f1c40f'),
                 tooltip=[
+                    alt.Tooltip('bones',title='Bone Count'),
                     alt.Tooltip('pct',title='Pct',format='.1%')
                 ]
             )
@@ -218,7 +224,7 @@ if pub_key != '':
             df_listing_status = df_rundeads_raw.groupby(['listStatus']).count()['mintAddress'].reset_index()
 
             domain = ['unlisted','listed']
-            range_ = ['#f1c40f','grey']
+            range_ = ['#f1c40f','#e74c3c']
 
             listing_distribution = alt.Chart(df_listing_status).mark_arc(innerRadius=90).encode(
                 theta=alt.Theta(field="mintAddress", type="quantitative"),
@@ -243,3 +249,37 @@ if pub_key != '':
             )
 
             st.altair_chart(listing_distribution, use_container_width=True)
+
+        with c3c2:
+
+            listing_scatter = alt.Chart(df_rundeads_raw).mark_circle(size=60).encode(
+                x=alt.X(
+                    'bones',
+                    axis=alt.Axis(
+                        title='Bone Count'
+                    )
+                ),
+                y=alt.Y(
+                    'price',
+                    axis=alt.Axis(
+                        title='Price (SOL)'
+                    )
+                ),
+                color=alt.value('#f1c40f'),
+                size=alt.Size(
+                    'price_per_bone',
+                    legend=alt.Legend(
+                        title='Price per Bone',
+                        orient='bottom'
+                    )
+                ),
+                tooltip=[
+                    alt.Tooltip('name',title='Rundead'),
+                    alt.Tooltip('mintAddress',title='mint'),
+                    alt.Tooltip('price',title='Price (SOL)'),
+                    alt.Tooltip('bones',title='Bone Count'),
+                    alt.Tooltip('price_per_bone',title='Price per Bone',format='0.0')
+                ]
+            )
+
+            st.altair_chart(listing_scatter, use_container_width=True)
