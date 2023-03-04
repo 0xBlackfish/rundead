@@ -223,7 +223,7 @@ if pub_key != '':
             domain = ['unlisted','listed']
             range_ = ['#f1c40f','#e74c3c']
 
-            listing_distribution = alt.Chart(df_listing_status).mark_arc(innerRadius=90).encode(
+            listing_distribution = alt.Chart(df_listing_status).mark_arc(innerRadius=75).encode(
                 theta=alt.Theta(field="mintAddress", type="quantitative"),
                 color=alt.Color(
                     field="listStatus", 
@@ -297,4 +297,4 @@ if pub_key != '':
             
             else:
 
-                st.dataframe(df_rundeads_raw[['name','mintAddress','bones']].sort_values(by='bones',ascending=False),height=300)
+                st.dataframe(df_rundeads_raw[['name','mintAddress','bones']].sort_values(by='bones',ascending=False),height=200)
