@@ -62,7 +62,7 @@ if pub_key != '':
         
         offset+=500
 
-        df_rundeads_raw['bones'] = df_rundeads_raw['attributes'].apply(lambda x: next(item for item in x if item['trait_type'] == 'Bones')['value'])
+        df_rundeads_raw['bones'] = df_rundeads_raw['attributes'].apply(lambda x: int(x[0]['value']) if x[0]['trait_type'] == 'Bones' else 0)
 
     st.write(' ')
     st.write(' ')
