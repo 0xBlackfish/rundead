@@ -241,6 +241,8 @@ if pub_key != '':
                     alt.Tooltip('listStatus', title='Listing Status'),
                     alt.Tooltip('mintAddress',title='Count')
                 ]
+            ).properties(
+                height=300
             ).configure_view(
                 strokeWidth=0
             )
@@ -287,10 +289,12 @@ if pub_key != '':
                         alt.Tooltip('bones',title='Bone Count'),
                         alt.Tooltip('price_per_bone',title='Price per Bone',format='0.0')
                     ]
+                ).properties(
+                    height=300
                 )
 
                 st.altair_chart(listing_scatter, use_container_width=True)
             
             else:
 
-                st.dataframe(df_rundeads_raw[['name','mintAddress','bones']].sort_values(by='bones',ascending=False))
+                st.dataframe(df_rundeads_raw[['name','mintAddress','bones']].sort_values(by='bones',ascending=False),height=300)
