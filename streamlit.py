@@ -257,34 +257,40 @@ if pub_key != '':
             st.write(' ')
             st.write(' ')
 
-            listing_scatter = alt.Chart(df_rundeads_raw).mark_circle(size=60).encode(
-                x=alt.X(
-                    'bones',
-                    axis=alt.Axis(
-                        title='Bone Count'
-                    )
-                ),
-                y=alt.Y(
-                    'price',
-                    axis=alt.Axis(
-                        title='Price (SOL)'
-                    )
-                ),
-                color=alt.value('#f1c40f'),
-                size=alt.Size(
-                    'price_per_bone',
-                    legend=alt.Legend(
-                        title='Price per Bone',
-                        orient='bottom'
-                    )
-                ),
-                tooltip=[
-                    alt.Tooltip('name',title='Rundead'),
-                    alt.Tooltip('mintAddress',title='mint'),
-                    alt.Tooltip('price',title='Price (SOL)'),
-                    alt.Tooltip('bones',title='Bone Count'),
-                    alt.Tooltip('price_per_bone',title='Price per Bone',format='0.0')
-                ]
-            )
+            if len(df_rundeads_raw[df_rundeads_raw['listStatus'] == 'unlisted']) != len(df_rundeads_raw):
+            
+                listing_scatter = alt.Chart(df_rundeads_raw).mark_circle(size=60).encode(
+                    x=alt.X(
+                        'bones',
+                        axis=alt.Axis(
+                            title='Bone Count'
+                        )
+                    ),
+                    y=alt.Y(
+                        'price',
+                        axis=alt.Axis(
+                            title='Price (SOL)'
+                        )
+                    ),
+                    color=alt.value('#f1c40f'),
+                    size=alt.Size(
+                        'price_per_bone',
+                        legend=alt.Legend(
+                            title='Price per Bone',
+                            orient='bottom'
+                        )
+                    ),
+                    tooltip=[
+                        alt.Tooltip('name',title='Rundead'),
+                        alt.Tooltip('mintAddress',title='mint'),
+                        alt.Tooltip('price',title='Price (SOL)'),
+                        alt.Tooltip('bones',title='Bone Count'),
+                        alt.Tooltip('price_per_bone',title='Price per Bone',format='0.0')
+                    ]
+                )
 
-            st.altair_chart(listing_scatter, use_container_width=True)
+                st.altair_chart(listing_scatter, use_container_width=True)
+            
+            else:
+
+                st.dataframe(df_rundeads_raw[['name','mintAddress','bones']].sort_values(by='bones',ascending=False))
