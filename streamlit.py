@@ -67,6 +67,7 @@ if pub_key != '':
     st.write(' ')
     st.write(' ')
 
+    # KPIs
     with st.container():
 
         c1c1, c1c2, c1c3 = st.columns(3)
@@ -81,6 +82,8 @@ if pub_key != '':
         st.write(' ')
         st.write(' ')
 
+
+    # Distributions
     with st.container():
 
         c2c1, c2c2 = st.columns(2,gap='large')
@@ -120,7 +123,7 @@ if pub_key != '':
             df_rundeads_bones_pct = df_rundeads_raw.groupby('bones').sum().reset_index()[['bones','supply']]
             df_rundeads_bones_pct['total_supply'] = len(df_rundeads_raw)
             df_rundeads_bones_pct['pct'] = df_rundeads_bones_pct['supply'] / df_rundeads_bones_pct['total_supply']
-            bones_range = pd.Series(range(0,max(df_rundeads_raw['bones'])),name='bones')
+            bones_range = pd.Series(range(0,max(df_rundeads_raw['bones'])+1),name='bones')
             df_rundeads_bones_pct_merged = pd.merge(bones_range,df_rundeads_bones_pct,how='left',on='bones')
             df_rundeads_bones_pct_merged['pct'].fillna(0,inplace=True)
             df_rundeads_bones_pct_merged['cumulative_pct'] = df_rundeads_bones_pct_merged['pct'].cumsum()
@@ -177,3 +180,42 @@ if pub_key != '':
             
             with tab_cumulative:
                 st.altair_chart(pct_distribution_cumulative, use_container_width=True)
+        
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+
+    # Listings
+    with st.container():
+
+        c3c1, c3c2 = st.columns(2,gap='large')
+
+        with c3c1:
+            st.markdown('##### Listing Distribution')
+
+            df_listing_status = df_rundeads_raw.groupby(['listStatus']).count()['mintAddress'].reset_index()
+
+            domain = ['unlisted','listed']
+            range_ = ['#f1c40f','grey']
+
+            listing_distribution = alt.Chart(df_listing_status).mark_arc(innerRadius=90).encode(
+                theta=alt.Theta(field="mintAddress", type="quantitative"),
+                color=alt.Color(
+                    field="listStatus", 
+                    type="nominal", 
+                    scale=alt.Scale(
+                        domain=domain, 
+                        range=range_
+                    ),
+                    legend=alt.Legend(
+                        title='Listing Status',
+                        orient='bottom'
+                    )
+                ),
+            ).configure_view(
+                strokeWidth=0
+            )
+
+            st.altair_chart(listing_distribution, use_container_width=True)
