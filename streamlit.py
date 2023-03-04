@@ -193,7 +193,17 @@ if pub_key != '':
         c3c1, c3c2 = st.columns(2,gap='large')
 
         with c3c1:
-            st.markdown('##### Listing Distribution')
+            st.markdown(
+                '''
+            ##### Listing Distribution
+            _The distribution of how many rundeads are listed vs. unlisted_
+                '''
+            )
+
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
 
             df_listing_status = df_rundeads_raw.groupby(['listStatus']).count()['mintAddress'].reset_index()
 
