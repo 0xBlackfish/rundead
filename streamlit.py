@@ -165,6 +165,7 @@ if pub_key != '':
                 ),
                 color=alt.value('#f1c40f'),
                 tooltip=[
+                    alt.Tooltip('bones',title='Bone Count'),
                     alt.Tooltip('cumulative_pct',title='Pct',format='.1%')
                 ]
             )
