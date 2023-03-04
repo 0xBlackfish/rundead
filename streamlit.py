@@ -45,7 +45,7 @@ if pub_key != '':
 
     while (offset < 20000) and (not df.empty):
         
-        url = "http://api-mainnet.magiceden.dev/v2/wallets/CGGZTW9HXgrcZPyL5YzuVxKd2uWFFz35uBJZEer2KAnR/tokens?offset="+str(offset)+"&limit=500"
+        url = "http://api-mainnet.magiceden.dev/v2/wallets/"+pub_key+"/tokens?offset="+str(offset)+"&limit=500"
         response = requests.get(url)
         json = response.json()
         
