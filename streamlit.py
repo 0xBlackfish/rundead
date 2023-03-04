@@ -89,7 +89,12 @@ if pub_key != '':
         c2c1, c2c2 = st.columns(2,gap='large')
 
         with c2c1:
-            st.markdown('##### Absolute Distribution of Rundeads')
+            st.markdown(
+                '''
+                ##### Absolute Distribution of Rundeads
+                _The absolute distribution of rundeads by bins_
+                '''
+            )
             st.write(' ')
             st.write(' ')
             st.write(' ')
@@ -118,7 +123,12 @@ if pub_key != '':
             st.altair_chart(abs_distribution, use_container_width=True)
 
         with c2c2:
-            st.markdown('##### Percentage Distribution of Rundeads')
+            st.markdown(
+                '''
+                ##### Percentage Distribution of Rundeads
+                _The discrete and cumulative percentage distribution of rundeads_
+                '''
+            )
 
             df_rundeads_bones_pct = df_rundeads_raw.groupby('bones').sum().reset_index()[['bones','supply']]
             df_rundeads_bones_pct['total_supply'] = len(df_rundeads_raw)
