@@ -297,4 +297,4 @@ if pub_key != '':
             
             else:
 
-                st.dataframe(df_rundeads_raw[['name','mintAddress','bones']].sort_values(by='bones',ascending=False),height=200)
+                st.dataframe(df_rundeads_raw[['name','mintAddress','bones']].sort_values(by='bones',ascending=False),height=250)
