@@ -234,6 +234,10 @@ if pub_key != '':
                         orient='bottom'
                     )
                 ),
+                tooltip=[
+                    alt.Tooltip('listStatus', title='Listing Status'),
+                    alt.Tooltip('mintAddress',title='Count')
+                ]
             ).configure_view(
                 strokeWidth=0
             )
