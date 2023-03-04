@@ -216,11 +216,6 @@ if pub_key != '':
                 '''
             )
 
-            st.write(' ')
-            st.write(' ')
-            st.write(' ')
-            st.write(' ')
-
             df_listing_status = df_rundeads_raw.groupby(['listStatus']).count()['mintAddress'].reset_index()
 
             domain = ['unlisted','listed']
@@ -251,6 +246,12 @@ if pub_key != '':
             st.altair_chart(listing_distribution, use_container_width=True)
 
         with c3c2:
+            st.markdown(
+                '''
+            ##### Listing Scatter
+            _The listing of rundeads based on bone count and list price_
+                '''
+            )
 
             listing_scatter = alt.Chart(df_rundeads_raw).mark_circle(size=60).encode(
                 x=alt.X(
