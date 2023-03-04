@@ -215,6 +215,8 @@ if pub_key != '':
             _The distribution of how many rundeads are listed vs. unlisted_
                 '''
             )
+            st.write(' ')
+            st.write(' ')
 
             df_listing_status = df_rundeads_raw.groupby(['listStatus']).count()['mintAddress'].reset_index()
 
@@ -252,6 +254,8 @@ if pub_key != '':
             _The listing of rundeads based on bone count and list price_
                 '''
             )
+            st.write(' ')
+            st.write(' ')
 
             listing_scatter = alt.Chart(df_rundeads_raw).mark_circle(size=60).encode(
                 x=alt.X(
