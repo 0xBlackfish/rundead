@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import altair as alt
+from datetime import datetime, date, timedelta
 
 
 st.set_page_config(
@@ -69,6 +70,9 @@ if pub_key != '':
         except:
             pass
 
+    st.write(' ')
+    st.write(' ')
+    st.markdown('## Wallet Holdings')
     st.write(' ')
     st.write(' ')
 
@@ -298,3 +302,232 @@ if pub_key != '':
             else:
 
                 st.dataframe(df_rundeads_raw[['name','mintAddress','bones']].sort_values(by='bones',ascending=False),height=250)
+
+    
+    st.write(' ')
+    st.write(' ')
+    st.markdown('## Wallet Activity')
+    st.write(' ')
+    st.write(' ')
+
+    lookback_window = st.number_input(
+        'Activity Lookback Window (hrs)',
+        min_value=1,
+        value=24,
+        step=1
+    )
+    st.write(' ')
+    st.write(' ')
+    st.write(' ')
+    st.write(' ')
+
+    offset = 0
+    df = pd.DataFrame({'Placeholder': [0], 'Value':[1]})
+    df_rundeads_activity_raw = pd.DataFrame()
+
+    while (offset < 50000) and (not df.empty):
+        
+        url = 'http://api-mainnet.magiceden.dev/v2/wallets/'+pub_key+'/activities?offset='+str(offset)+'&limit=500'
+        response = requests.get(url)
+        json = response.json()
+        
+        df = pd.DataFrame(json)
+        
+        if df.empty:
+            pass
+        else:
+            df_rundead_activity_filtered = df[df['collection'] == 'rundead']
+        
+            df_rundeads_activity_raw = pd.concat([df_rundead_activity_filtered, df_rundeads_activity_raw])
+        
+        offset+=500
+
+    df_rundeads_activity_raw['timestamp'] = df_rundeads_activity_raw['blockTime'].apply(lambda x: datetime.utcfromtimestamp(x))
+    df_rundeads_activity_lookback = df_rundeads_activity_raw[df_rundeads_activity_raw['timestamp']>=(datetime.now()- timedelta(hours=lookback_window))]
+
+    df_rundeads_activity_delist = df_rundeads_activity_raw[df_rundeads_activity_raw['type'] == 'delist']
+    df_rundeads_activity_list = df_rundeads_activity_raw[df_rundeads_activity_raw['type'] == 'list']
+    df_rundeads_activity_buy = df_rundeads_activity_raw[(df_rundeads_activity_raw['type'] == 'buyNow') & (df_rundeads_activity_raw['buyer'] == pub_key)]
+    df_rundeads_activity_sell = df_rundeads_activity_raw[(df_rundeads_activity_raw['type'] == 'buyNow') & (df_rundeads_activity_raw['seller'] == pub_key)]
+
+    # KPIs
+    with st.container():
+
+        c4c1, c4c2, c4c3, c4c4 = st.columns(4)
+
+        c4c1.metric('Last {}hr Delistings'.format(lookback_window), df_rundeads_activity_lookback[(df_rundeads_activity_lookback['type'] == 'delist')]['tokenMint'].nunique())
+        c4c2.metric('Last {}hr Listings'.format(lookback_window), df_rundeads_activity_lookback[(df_rundeads_activity_lookback['type'] == 'list')]['tokenMint'].nunique())
+        c4c3.metric('Last {}hr Purchases'.format(lookback_window), len(df_rundeads_activity_lookback[(df_rundeads_activity_lookback['type'] == 'buyNow') & (df_rundeads_activity_lookback['buyer'] == pub_key)]))
+        c4c4.metric('Last {}hr Sales'.format(lookback_window), len(df_rundeads_activity_lookback[(df_rundeads_activity_lookback['type'] == 'buyNow') & (df_rundeads_activity_lookback['seller'] == pub_key)]))
+
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+
+    # List / Delist
+    with st.container():
+
+        c5c1, c5c2 = st.columns(2,gap='large')
+
+        with c5c1:
+
+            st.markdown(
+                '''
+                ##### Rundead Delisting Volume
+                _The number of unique Rundead NFTs delisted_
+                '''
+            )
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+
+            delistings = alt.Chart(df_rundeads_activity_delist).mark_bar().encode(
+                x=alt.X(
+                    'yearmonthdate(timestamp):O',
+                    axis=alt.Axis(
+                        title='Date',
+                        labelAngle=-45
+                    )
+                ),
+                y=alt.Y(
+                    'distinct(tokenMint)',
+                    axis=alt.Axis(
+                        title='Rundead Volume',
+                        grid=False
+                    )
+                ),
+                color=alt.value('#f1c40f'),
+                tooltip=[
+                    alt.Tooltip('yearmonthdate(timestamp):O',title='Date'),
+                    alt.Tooltip('distinct(tokenMint)',title='Unique Rundeads')
+                ]
+            )
+
+            st.altair_chart(delistings, use_container_width=True)
+
+        with c5c2:
+
+            st.markdown(
+                '''
+                ##### Rundead Listing Volume
+                _The number of unique Rundead NFTs listed_
+                '''
+            )
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+
+            listings = alt.Chart(df_rundeads_activity_list).mark_bar().encode(
+                x=alt.X(
+                    'yearmonthdate(timestamp):O',
+                    axis=alt.Axis(
+                        title='Date',
+                        labelAngle=-45
+                    )
+                ),
+                y=alt.Y(
+                    'distinct(tokenMint)',
+                    axis=alt.Axis(
+                        title='Rundead Volume',
+                        grid=False
+                    )
+                ),
+                color=alt.value('#f1c40f'),
+                tooltip=[
+                    alt.Tooltip('yearmonthdate(timestamp):O',title='Date'),
+                    alt.Tooltip('distinct(tokenMint)',title='Unique Rundeads')
+                ]
+            )
+
+            st.altair_chart(listings, use_container_width=True)
+    
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
+
+    # Sell / Purchase
+    with st.container():
+
+        c6c1, c6c2 = st.columns(2,gap='large')
+
+        with c6c1:
+
+            st.markdown(
+                '''
+                ##### Rundead Sales Volume
+                _The number of Rundead NFTs sold_
+                '''
+            )
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+
+            sales = alt.Chart(df_rundeads_activity_sell).mark_bar().encode(
+                x=alt.X(
+                    'yearmonthdate(timestamp):O',
+                    axis=alt.Axis(
+                        title='Date',
+                        labelAngle=-45
+                    )
+                ),
+                y=alt.Y(
+                    'distinct(signature)',
+                    axis=alt.Axis(
+                        title='Rundead Sales',
+                        grid=False
+                    )
+                ),
+                color=alt.value('#f1c40f'),
+                tooltip=[
+                    alt.Tooltip('yearmonthdate(timestamp):O',title='Date'),
+                    alt.Tooltip('distinct(signature)',title='Rundeads Sold')
+                ]
+            )
+
+            st.altair_chart(sales, use_container_width=True)
+
+        with c6c2:
+
+            st.markdown(
+                '''
+                ##### Rundead Purchase Volume
+                _The number of Rundead NFTs purchased_
+                '''
+            )
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+            st.write(' ')
+
+            purchases = alt.Chart(df_rundeads_activity_buy).mark_bar().encode(
+                x=alt.X(
+                    'yearmonthdate(timestamp):O',
+                    axis=alt.Axis(
+                        title='Date',
+                        labelAngle=-45
+                    )
+                ),
+                y=alt.Y(
+                    'distinct(signature)',
+                    axis=alt.Axis(
+                        title='Rundead Purchases',
+                        grid=False
+                    )
+                ),
+                color=alt.value('#f1c40f'),
+                tooltip=[
+                    alt.Tooltip('yearmonthdate(timestamp):O',title='Date'),
+                    alt.Tooltip('distinct(signature)',title='Rundeads Purchased')
+                ]
+            )
+
+            st.altair_chart(purchases, use_container_width=True)
+
+        
